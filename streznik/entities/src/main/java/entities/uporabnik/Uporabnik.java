@@ -12,7 +12,7 @@ public class Uporabnik implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@Column
+	@Column(name = "uporabnisko_ime")
 	private String uporabniskoIme;
 	
 	@Column
