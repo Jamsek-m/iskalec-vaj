@@ -30,8 +30,6 @@
             <groupId>com.mjamsek</groupId>
             <artifactId>services</artifactId>
         </dependency>
-
-
     </dependencies>
 
     <build>

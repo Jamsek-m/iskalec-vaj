@@ -1,6 +1,8 @@
 import entities.uporabnik.Uporabnik;
 import repositories.UporabnikRepository;
 
+import com.kumuluz.ee.logs.LogManager;
+import com.kumuluz.ee.logs.Logger;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +18,8 @@ public class TestServlet extends HttpServlet {
 	@Inject
 	private UporabnikRepository upRepo;
 
+	private static final Logger LOG = LogManager.getLogger(TestServlet.class.getName());
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
 		
@@ -26,6 +30,7 @@ public class TestServlet extends HttpServlet {
 		for(Uporabnik up : upRepo.pridobiVseUporabnike()) {
 			writer.println(up.getEmail());
 		}
+		LOG.info("To je info sporocilo za logger!");
 		
 		writer.close();
 	
