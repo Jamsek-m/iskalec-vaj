@@ -162,4 +162,4 @@ $RECYCLE.BIN/
 
 /target/
 
-/ObjectStore/
+**/ObjectStore/

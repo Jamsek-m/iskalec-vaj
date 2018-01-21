@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.mjamsek</groupId>
-    <artifactId>iskalec-vaj</artifactId>
+    <artifactId>iskalec-vaj-uporabniki</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1</version>
 
@@ -21,7 +21,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <kumuluzee.version>2.5.2</kumuluzee.version>
         <kumuluzee-logs.version>1.3.0</kumuluzee-logs.version>
+        <kumuluzee-rest.version>1.1.0</kumuluzee-rest.version>
         <postgres.version>42.1.4</postgres.version>
+        <kumuluzee-cors.version>1.0.2</kumuluzee-cors.version>
     </properties>
 
     <dependencyManagement>
@@ -52,6 +54,16 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgres.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.rest</groupId>
+                <artifactId>kumuluzee-rest-core</artifactId>
+                <version>${kumuluzee-rest.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.cors</groupId>
+                <artifactId>kumuluzee-cors</artifactId>
+                <version>${kumuluzee-cors.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

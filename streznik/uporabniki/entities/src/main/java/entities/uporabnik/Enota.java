@@ -11,8 +11,10 @@ public class Enota implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
+	@Column
 	private String sifra;
 	
+	@Column
 	private String naziv;
 	
 	public Enota() {}

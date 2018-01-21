@@ -11,6 +11,7 @@ public class Letnik implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
+	@Column
 	private int letnik;
 	
 	@ManyToOne
