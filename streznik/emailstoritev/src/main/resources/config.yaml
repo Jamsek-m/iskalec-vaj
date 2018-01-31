@@ -1,0 +1,13 @@
+kumuluzee:
+  name: iskalec-vaj-email
+  version: 0.0.1
+  env:
+    name: dev
+  server:
+    http:
+      port: 8081
+email:
+  host: smtp.gmail.com
+  port: 587
+  username: playernobody@gmail.com
+  password: jljyjoaipsjojvbi

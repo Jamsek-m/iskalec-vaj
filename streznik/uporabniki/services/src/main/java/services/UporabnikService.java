@@ -12,6 +12,19 @@ public interface UporabnikService {
 	
 	public Uporabnik poisciUporabnika(long id);
 	
-	public Uporabnik dodajUporabnika(UporabnikRequest req);
+	public List<Uporabnik> poisciZNizom(String niz);
 	
+	public Uporabnik dodajUporabnika(UporabnikRequest req) throws Exception;
+	
+	public Uporabnik posodobiUporabnika(long id, UporabnikRequest req);
+	
+	public void izbrisiUporabnika(long id);
+	
+	public void nastaviZaModeratorja(long id);
+	
+	public void nastaviZaAdmina(long id);
+	
+	public void vzemiPraviceModeratorja(long id);
+	
+	public void vzemiPraviceAdmina(long id);
 }

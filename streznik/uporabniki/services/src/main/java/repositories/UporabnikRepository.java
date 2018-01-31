@@ -22,8 +22,7 @@ public class UporabnikRepository {
 	}
 	
 	public Uporabnik pridobiUporabnika(long id) {
-		Query query = entityManager.createQuery("SELECT u.id, u.email, u.uporabniskoIme, " +
-				"u.ime, u.priimek, u.letnik, u.status FROM Uporabnik u WHERE u.id = :id");
+		Query query = entityManager.createQuery("SELECT u FROM Uporabnik u WHERE u.id = :id");
 		query.setParameter("id", id);
 		Uporabnik uporabnik = (Uporabnik) query.getSingleResult();
 		if(uporabnik == null) {
@@ -37,6 +36,14 @@ public class UporabnikRepository {
 		query.setParameter("email", email);
 		List<Uporabnik> lista = query.getResultList();
 		return lista.size();
+	}
+	
+	public List<Uporabnik> poisciNUjemajocih(String niz, int n) {
+		Query query = entityManager.createQuery("SELECT u FROM Uporabnik u WHERE u.ime LIKE :niz " +
+				"OR u.priimek LIKE :niz");
+		query.setParameter("niz", "%" + niz + "%");
+		List<Uporabnik> uporabniki = query.setMaxResults(n).getResultList();
+		return uporabniki;
 	}
 	
 	@Transactional
