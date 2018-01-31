@@ -3,11 +3,23 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
+<style>
+    body {
+        background-color: black;
+        color: white;
+    }
+    a {
+        color: cornflowerblue;
+    }
+</style>
 <body>
 <div>
     <h2 th:text="'Zadeva: ' + ${zadeva}"></h2>
-    <p>Pozdravljen svet!</p>
-    <strong>To je registracijsko sporočilo iz kumuluza!</strong>
+    <p>Registriral si se z uporabniškim imenom: <strong th:text="${uporabniskoIme}"></strong></p>
+
+    <p>Za potrditev elektronskega naslova sledi <a th:href="@{'http://localhost/potrdi/' + ${kljuc}}">tej povezavi</a></p>
+
+
 </div>
 </body>
 </html>

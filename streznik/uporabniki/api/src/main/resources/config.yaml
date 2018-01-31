@@ -9,8 +9,5 @@ kumuluzee:
       username: postgres
       password: postgres
       max-pool-size: 20
-email:
-  host: smtp.gmail.com
-  port: 587
-  username: playernobody@gmail.com
-  password: jljyjoaipsjojvbi
+storitve:
+  email: http://localhost:8081/v1/email

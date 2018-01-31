@@ -1,5 +1,7 @@
 package api.v1.vir;
 
+import com.kumuluz.ee.logs.LogManager;
+import com.kumuluz.ee.logs.Logger;
 import entitete.EmailRequest;
 import entitete.EmailResponse;
 import entitete.exceptions.NiTipaException;
@@ -21,8 +23,12 @@ public class EmailVir {
 	@Inject
 	private EmailService emailService;
 	
+	private static final Logger LOG = LogManager.getLogger(EmailVir.class.getName());
+	
 	@POST
 	public Response posljiEmail(EmailRequest req) throws NiTipaException, SendErrorException {
+		LOG.info("prejet zahtevek za e-mail!");
+		
 		emailService.handleEmail(req);
 		return Response.status(Response.Status.CREATED).entity(new EmailResponse(
 				Response.Status.CREATED.getStatusCode(),

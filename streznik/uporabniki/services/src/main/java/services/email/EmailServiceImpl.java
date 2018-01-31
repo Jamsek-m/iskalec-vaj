@@ -3,80 +3,50 @@ package services.email;
 import com.kumuluz.ee.configuration.utils.ConfigurationUtil;
 import com.kumuluz.ee.logs.LogManager;
 import com.kumuluz.ee.logs.Logger;
-import org.thymeleaf.context.Context;
-import response.email.EmailStatus;
-import services.templateEngine.ThymeleafEngine;
+import entities.uporabnik.Uporabnik;
+import exceptions.SendEmailException;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.Date;
-import java.util.Properties;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import java.util.HashMap;
 
 @ApplicationScoped
 public class EmailServiceImpl implements EmailService {
 	
-	@Inject
-	private ThymeleafEngine thymeleafEngine;
-	
 	private static final Logger LOG = LogManager.getLogger(EmailServiceImpl.class.getName());
 	
-	@Override
-	public EmailStatus posljiEmail(String templateName, String zadeva, String prejemnik, Context context) {
-		
-		final String userName = ConfigurationUtil.getInstance().get("email.username").orElse("");
-		final String password = ConfigurationUtil.getInstance().get("email.password").orElse("");
-		
-		Properties properties = getProperties();
-		
-		final String htmlMessage = thymeleafEngine.getTemplateEngine().process(templateName, context);
-		
-		try {
-			
-			Authenticator auth = new Authenticator() {
-				public PasswordAuthentication getPasswordAuthentication() {
-					return new PasswordAuthentication(userName, password);
-				}
-			};
-			
-			Session session = Session.getInstance(properties, auth);
-			
-			Message msg = new MimeMessage(session);
-			
-			msg.setFrom(new InternetAddress(userName));
-			
-			InternetAddress[] toAddresses = { new InternetAddress(prejemnik) };
-			msg.setRecipients(Message.RecipientType.TO, toAddresses);
-			msg.setSubject(zadeva);
-			msg.setSentDate(new Date());
-			// set plain text message
-			msg.setContent(htmlMessage, "text/html; charset=UTF-8");
-			
-			// sends the e-mail
-			Transport.send(msg);
-			
-			return EmailStatus.vrniOK("Sporocilo je bilo poslano!");
-		} catch(MessagingException msgEx) {
-			LOG.error(msgEx.getMessage());
-			msgEx.printStackTrace();
-			return EmailStatus.vrniERROR("Napaka pri posiljanju sporocila!");
-		}
-
-
+	private Client client;
+	
+	private final String baseUrl = ConfigurationUtil.getInstance().get("storitve.email").orElse("");
+	
+	@PostConstruct
+	private void init() {
+		this.client = ClientBuilder.newClient();
 	}
 	
-	private Properties getProperties() {
-		final String host = ConfigurationUtil.getInstance().get("email.host").orElse("");
-		final String port = ConfigurationUtil.getInstance().get("email.port").orElse("");
+	@Override
+	public void posljiRegistracijskiEmail(Uporabnik prejemnik, String zadeva, String potrditveniKljuc) throws SendEmailException {
+		HashMap<String, String> kontekst = new HashMap<>();
+		kontekst.put("zadeva", zadeva);
+		kontekst.put("uporabniskoIme", prejemnik.getUporabniskoIme());
+		kontekst.put("kljuc", potrditveniKljuc);
+		this.posljiEmail(TIP_REGISTRACIJA, zadeva, prejemnik.getEmail(), kontekst);
+	}
+	
+	private void posljiEmail(String tip, String zadeva, String prejemnik, HashMap<String, String> kontekst) throws SendEmailException {
+		EmailRequest req = new EmailRequest(zadeva, tip, prejemnik, kontekst);
+		WebTarget url = client.target(this.baseUrl);
+		Response response = url.request().post(Entity.json(req));
 		
-		Properties properties = new Properties();
-		properties.put("mail.smtp.host", host);
-		properties.put("mail.smtp.port", port);
-		properties.put("mail.smtp.auth", true);
-		properties.put("mail.smtp.starttls.enable", true);
-		
-		return properties;
+		EmailResponse res = response.readEntity(EmailResponse.class);
+		if(response.getStatus() != Response.Status.CREATED.getStatusCode()) {
+			LOG.error(res.status + ": " + res.sporocilo);
+			throw new SendEmailException(res.sporocilo);
+		}
 	}
 }

@@ -5,15 +5,12 @@ import entities.uporabnik.Letnik;
 import entities.uporabnik.Uporabnik;
 import entities.uporabnik.Vloga;
 import exceptions.SendEmailException;
-import org.thymeleaf.context.Context;
 import repositories.LetnikRepository;
 import repositories.StatusUporabnikRepository;
 import repositories.UporabnikRepository;
 import repositories.VlogaRepository;
 import requests.uporabnik.UporabnikRequest;
-import response.email.EmailStatus;
 import services.email.EmailService;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
@@ -55,7 +52,7 @@ public class UporabnikServiceImpl implements UporabnikService {
 	}
 	
 	@Override
-	public Uporabnik dodajUporabnika(UporabnikRequest req) throws Exception {
+	public Uporabnik dodajUporabnika(UporabnikRequest req) throws SendEmailException {
 		if(jeNeveljavenEmail(req.email)) {
 			throw new EntityExistsException("E-mail ze obstaja!");
 		}
@@ -66,15 +63,7 @@ public class UporabnikServiceImpl implements UporabnikService {
 		uporabnikRepository.dodajUporabnika(uporabnik);
 		
 		String zadeva = "Registracija uspešna!";
-		Context context = new Context();
-		context.setVariable("zadeva", zadeva);
-		//TODO: premakni v svojo storitev
-		EmailStatus status = emailService.posljiEmail("html/registration-email", zadeva,
-				uporabnik.getEmail(), context);
-		
-		if(status.getStatus() == EmailStatus.STATUS_ERROR) {
-			throw new SendEmailException("Email ni bil poslan!");
-		}
+		emailService.posljiRegistracijskiEmail(uporabnik, zadeva, "kljuc12345");
 		return uporabnik;
 	}
 	

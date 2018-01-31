@@ -1,10 +1,13 @@
 package services.email;
 
-import org.thymeleaf.context.Context;
-import response.email.EmailStatus;
+
+import entities.uporabnik.Uporabnik;
+import exceptions.SendEmailException;
 
 public interface EmailService {
 	
-	public EmailStatus posljiEmail(String templateName, String zadeva, String prejemnik, Context context);
+	public static final String TIP_REGISTRACIJA = "registracija";
+	
+	public void posljiRegistracijskiEmail(Uporabnik prejemnik, String zadeva, String potrditveniKljuc) throws SendEmailException;
 	
 }

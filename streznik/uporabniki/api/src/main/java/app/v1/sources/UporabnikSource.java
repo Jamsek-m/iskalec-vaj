@@ -2,6 +2,7 @@ package app.v1.sources;
 
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import entities.uporabnik.Uporabnik;
+import exceptions.SendEmailException;
 import requests.uporabnik.UporabnikRequest;
 import services.UporabnikService;
 
@@ -48,12 +49,8 @@ public class UporabnikSource {
 	}
 	
 	@POST
-	public Response dodajUporabnika(UporabnikRequest uporabnikRequest) {
-		try {
-			uporabnikService.dodajUporabnika(uporabnikRequest);
-			return Response.status(Response.Status.CREATED).entity(uporabnikRequest).build();
-		} catch(Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Napaka pri emailu!").build();
-		}
+	public Response dodajUporabnika(UporabnikRequest uporabnikRequest) throws SendEmailException {
+		uporabnikService.dodajUporabnika(uporabnikRequest);
+		return Response.status(Response.Status.CREATED).entity(uporabnikRequest).build();
 	}
 }

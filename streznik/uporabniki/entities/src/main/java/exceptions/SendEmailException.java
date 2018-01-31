@@ -10,11 +10,4 @@ public class SendEmailException extends Exception {
 		super(message);
 	}
 	
-	public SendEmailException(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public SendEmailException(Throwable cause) {
-		super(cause);
-	}
 }
