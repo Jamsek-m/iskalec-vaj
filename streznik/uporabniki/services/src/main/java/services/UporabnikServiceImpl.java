@@ -62,8 +62,8 @@ public class UporabnikServiceImpl implements UporabnikService {
 		Uporabnik uporabnik = extractUporabnik(req);
 		uporabnikRepository.dodajUporabnika(uporabnik);
 		
-		String zadeva = "Registracija uspešna!";
-		emailService.posljiRegistracijskiEmail(uporabnik, zadeva, "kljuc12345");
+		//String zadeva = "Registracija uspešna!";
+		//emailService.posljiRegistracijskiEmail(uporabnik, zadeva, "kljuc12345");
 		return uporabnik;
 	}
 	
@@ -128,7 +128,7 @@ public class UporabnikServiceImpl implements UporabnikService {
 		Letnik letnik = letnikRepository.pridobiEnLetnik(req.letnik);
 		Uporabnik uporabnik = new Uporabnik();
 		uporabnik.setEmail(req.email);
-		uporabnik.setGeslo(req.geslo1);
+		uporabnik.setGeslo(req.hashedGeslo);
 		uporabnik.setIme(req.ime);
 		uporabnik.setPriimek(req.priimek);
 		uporabnik.setUporabniskoIme(req.uporabniskoIme);

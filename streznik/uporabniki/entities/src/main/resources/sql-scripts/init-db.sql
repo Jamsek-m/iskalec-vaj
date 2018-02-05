@@ -6,7 +6,7 @@ INSERT INTO enota(naziv, sifra) VALUES ('Univerzitetni', 'UNI'), ('Visokošolski
 
 INSERT INTO letnik(letnik, enota_id) VALUES(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2);
 
-INSERT INTO uporabnik(uporabnisko_ime, ime, priimek, email, geslo, status_id, letnik_id) VALUES('miha', 'Miha', 'Jamšek', 'miha_jamsek@windowslive.com', 'geslo', 1, 3);
+INSERT INTO uporabnik(uporabnisko_ime, ime, priimek, email, geslo, status_id, letnik_id) VALUES('miha', 'Miha', 'Jamšek', 'miha_jamsek@windowslive.com', '$2a$10$HsA0LsA1tPpVM9oFO7n9O.xUyUqH/3uIhsg9VueJa008rTJSCzOpa', 1, 3);
 
 INSERT INTO uporabniske_vloge(uporabnik_id, vloga_id) VALUES(1, 1), (1, 2), (1, 3);
 

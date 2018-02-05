@@ -14,6 +14,8 @@ public class UporabnikRequest {
 	
 	public String geslo2;
 	
+	public String hashedGeslo;
+	
 	public int letnik;
 	
 }

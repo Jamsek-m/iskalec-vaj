@@ -1,6 +1,7 @@
 package entities.uporabnik;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ public class Uporabnik implements Serializable {
 	private String email;
 	
 	@Column
+	@XmlTransient
 	private String geslo;
 	
 	@ManyToOne
@@ -97,6 +99,7 @@ public class Uporabnik implements Serializable {
 		this.email = email;
 	}
 	
+	@XmlTransient
 	public String getGeslo() {
 		return geslo;
 	}

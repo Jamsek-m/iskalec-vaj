@@ -1,0 +1,24 @@
+{
+	"services": [
+		{
+			"ime": "uporabniki",
+			"port": "8080",
+			"dependencies": ["email"]
+		},
+		{
+			"ime": "angular",
+			"port": "4200",
+			"dependencies": ["*"]
+		},
+		{
+			"ime": "email",
+			"port": "8081",
+			"dependencies": []
+		},
+		{
+			"ime": "avtentikacija",
+			"port": "8082",
+			"dependencies": ["email"]
+		}
+	]
+}

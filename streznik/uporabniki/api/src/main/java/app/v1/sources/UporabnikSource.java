@@ -3,7 +3,11 @@ package app.v1.sources;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import entities.uporabnik.Uporabnik;
 import exceptions.SendEmailException;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+import repositories.UporabnikRepository;
 import requests.uporabnik.UporabnikRequest;
+import response.uporabnik.UporabnikZGeslom;
 import services.UporabnikService;
 
 import javax.enterprise.context.RequestScoped;
@@ -13,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.File;
 import java.util.List;
 
 @Path("uporabniki")
@@ -23,6 +28,9 @@ public class UporabnikSource {
 	
 	@Inject
 	private UporabnikService uporabnikService;
+	
+	@Inject
+	private UporabnikRepository uporabnikRepository;
 	
 	@Context
 	protected UriInfo uriInfo;
@@ -53,4 +61,23 @@ public class UporabnikSource {
 		uporabnikService.dodajUporabnika(uporabnikRequest);
 		return Response.status(Response.Status.CREATED).entity(uporabnikRequest).build();
 	}
+	
+	@GET
+	@Path("email/{email}")
+	public Response pridobiZEmailom(@PathParam("email") String email) {
+		UporabnikZGeslom upb = uporabnikRepository.poisciUporabnikaZEmailom(email);
+		return Response.status(Response.Status.OK).entity(upb).build();
+	}
+	
+	/*@POST
+	@Path("test")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response testiraj(@FormDataParam("slika")File file,
+							 @FormDataParam("slika")FormDataContentDisposition file_meta,
+							 @FormDataParam("naziv") String naziv,
+							 @FormDataParam("naziv") double cena,
+							 @FormDataParam("naziv") String opis){
+		
+		return Response.status(Response.Status.OK).entity(file.getAbsolutePath()).build();
+	}*/
 }

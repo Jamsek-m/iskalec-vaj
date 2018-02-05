@@ -3,6 +3,7 @@ package repositories;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import com.kumuluz.ee.rest.utils.JPAUtils;
 import entities.uporabnik.Uporabnik;
+import response.uporabnik.UporabnikZGeslom;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
@@ -28,6 +29,13 @@ public class UporabnikRepository {
 		if(uporabnik == null) {
 			return null;
 		}
+		return uporabnik;
+	}
+	
+	public UporabnikZGeslom poisciUporabnikaZEmailom(String email) {
+		Query query = entityManager.createQuery("SELECT u FROM Uporabnik u WHERE u.email = :email");
+		query.setParameter("email", email);
+		UporabnikZGeslom uporabnik = new UporabnikZGeslom ((Uporabnik) query.getSingleResult());
 		return uporabnik;
 	}
 	

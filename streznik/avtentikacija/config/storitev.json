@@ -1,0 +1,9 @@
+{
+	"token_secret": "pericarezeracirep",
+	"uporabnikiService": {
+		"base_url" : "http://localhost:8080/v1/uporabniki/"
+	},
+	"emailService": {
+		"base_url" : "http://localhost:8081/v1/email/"
+	}
+}
