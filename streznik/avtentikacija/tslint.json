@@ -6,7 +6,9 @@
     "jsRules": {},
     "rules": {
         "no-console": [false],
-        "quotemark": [true, "double"]
+        "quotemark": [true, "double"],
+        "ordered-imports": [false],
+        "align": [true, "statements"]
     },
     "rulesDirectory": []
 }

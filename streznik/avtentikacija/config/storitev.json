@@ -1,5 +1,6 @@
 {
 	"token_secret": "pericarezeracirep",
+	"uporabniki_kljuc": "tojeskrivnost",
 	"uporabnikiService": {
 		"base_url" : "http://localhost:8080/v1/uporabniki/"
 	},

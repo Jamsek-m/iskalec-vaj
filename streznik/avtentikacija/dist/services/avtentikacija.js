@@ -9,14 +9,14 @@ const config = require(path.join(__dirname, "..", "..", "..", "config", "storite
 /* tslint:enable no-var-requires */
 class Avtentikacija {
     constructor() {
-        this.baseUrl = config.base_url;
+        this.uporabnikiBaseUrl = config.uporabnikiService.base_url;
     }
     prijaviUporabnika(email, geslo, done) {
-        const URL = `${this.baseUrl}email/${email}`;
-        console.log(URL);
+        const URL = `${this.uporabnikiBaseUrl}email/${email}`;
         request.get({ url: URL }, (error, res, body) => {
             if (error) {
-                return done(error);
+                console.log("SEM V ERROR");
+                return done(error, false);
             }
             else if (res.statusCode === 200) {
                 const uporabnik = JSON.parse(body);
@@ -30,11 +30,35 @@ class Avtentikacija {
                 });
             }
             else {
-                console.log("KODA: ", res.statusCode);
-                const napaka = new Error("Not Found");
-                console.log("NAPAKA", napaka);
-                return done(napaka);
+                console.log("SEM V STATUS CODE");
+                return done({
+                    message: `Napaka pri klicu mikrostoritve uporabnikov. Koda odgovora: ${res.statusCode}`,
+                    name: "Napaka pri dosegu mikrostoritve!",
+                    stack: null,
+                }, false);
             }
+        });
+    }
+    registrirajUporabnika(uporabnik, done) {
+        if (uporabnik.geslo1 !== uporabnik.geslo2) {
+            return done({ message: "Gesli se ne ujemata!", name: "Password mismatch" });
+        }
+        encrypt.encryptPassword(uporabnik.geslo1, (err, hash) => {
+            const URL = `${this.uporabnikiBaseUrl}`;
+            uporabnik.hashedGeslo = hash;
+            console.log("klicem");
+            request.post({ url: URL, body: uporabnik, json: true }, (error, res, body) => {
+                if (error) {
+                    return done(error);
+                }
+                else if (res.statusCode === 201) {
+                    return done(null, true);
+                }
+                else {
+                    console.log(`KODA: ${res.statusCode}, body: ${body}`);
+                    return done(null, false);
+                }
+            });
         });
     }
     generateJWTtoken(uporabnik) {

@@ -4,6 +4,7 @@ import com.kumuluz.ee.rest.beans.QueryParameters;
 import entities.uporabnik.Uporabnik;
 import exceptions.SendEmailException;
 import requests.uporabnik.UporabnikRequest;
+import response.uporabnik.UporabnikZGeslom;
 
 import java.util.List;
 
@@ -15,7 +16,11 @@ public interface UporabnikService {
 	
 	public List<Uporabnik> poisciZNizom(String niz);
 	
-	public Uporabnik dodajUporabnika(UporabnikRequest req) throws SendEmailException;
+	public UporabnikZGeslom poisciZEmailom(String email);
+	
+	public Uporabnik dodajUporabnika(UporabnikRequest req, String hostname) throws SendEmailException;
+	
+	public void potrdiUporabnikovEmail(String kljuc);
 	
 	public Uporabnik posodobiUporabnika(long id, UporabnikRequest req);
 	

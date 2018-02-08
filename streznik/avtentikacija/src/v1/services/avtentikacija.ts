@@ -2,6 +2,7 @@ import * as jwt from "jsonwebtoken";
 import * as path from "path";
 import * as request from "request";
 import {Uporabnik} from "../entities/Uporabnik";
+import {PrijavaException} from "../entities/exceptions/PrijavaException";
 import * as encrypt from "./encrypt";
 /* tslint:disable no-var-requires */
 const config = require(path.join(__dirname, "..", "..", "..", "config", "storitev.json"));
@@ -10,21 +11,25 @@ const config = require(path.join(__dirname, "..", "..", "..", "config", "storite
 export class Avtentikacija {
 
     private uporabnikiBaseUrl: string;
-    private emailBaseUrl: string;
 
     constructor() {
         this.uporabnikiBaseUrl = config.uporabnikiService.base_url;
-        this.emailBaseUrl = config.emailService.base_url;
     }
 
-    public prijaviUporabnika(email: string, geslo: string, done: (err: Error, token?: string|boolean) => void) {
-        const URL = `${this.uporabnikiBaseUrl}email/${email}`;
+    public prijaviUporabnika(email: string, geslo: string, done: (err: PrijavaException,
+        token: string | boolean) => void) {
+        const URL = `${this.uporabnikiBaseUrl}email/`;
+        const KLJUC = config.uporabniki_kljuc;
 
-        request.get({url: URL}, (error, res, body) => {
+        request.post({url: URL, body: {email, kljuc: KLJUC}, json: true}, (error, res, body) => {
+            // prislo je do napake pri dostopu storitve
             if (error) {
-                return done(error);
+                const napaka = new PrijavaException(error,
+                    "Storitev uporabniki ni dosegljiva - ali je bila zagnana?", 424);
+                return done(napaka, false);
+            // uporabnik obstaja, primerjaj geslo
             } else if (res.statusCode === 200) {
-                const uporabnik = JSON.parse(body);
+                const uporabnik = body;
                 encrypt.comparePassword(geslo, uporabnik.geslo, (napaka, isMatch) => {
                     if (isMatch) {
                         return done(undefined, this.generateJWTtoken(uporabnik));
@@ -32,36 +37,44 @@ export class Avtentikacija {
                         return done(undefined, false);
                     }
                 });
+            // uporabnik ne obstaja
+            } else if (res.statusCode === 404) {
+                return done(undefined, false);
+            // napaka
             } else {
-                return done({
+                const napaka = new PrijavaException({
                     message: `Napaka pri klicu mikrostoritve uporabnikov. Koda odgovora: ${res.statusCode}`,
                     name: "Napaka pri dosegu mikrostoritve!",
                     stack: null,
-                });
+                }, "Napaka pri poizvedbi uporabnika!", 500);
+                return done(napaka, false);
             }
         });
     }
 
-    public registrirajUporabnika(uporabnik: Uporabnik, done: (err: Error, uspeh?: boolean) => void) {
-        if (uporabnik.geslo1 !== uporabnik.geslo2) {
-            return done({message: "Gesli se ne ujemata!", name: "Password mismatch"});
-        }
-        encrypt.encryptPassword(uporabnik.geslo1, (err, hash) => {
+    public registrirajUporabnika(uporabnik: Uporabnik, done: (err: PrijavaException, uspeh: boolean) => void) {
+        encrypt.encryptPassword(uporabnik.geslo, (err, hash) => {
             const URL = `${this.uporabnikiBaseUrl}`;
-            uporabnik.hashedGeslo = hash;
-            console.log("klicem");
+            const KLJUC = config.uporabniki_kljuc;
+            uporabnik.geslo = hash;
+            uporabnik.kljuc = KLJUC;
+
             request.post({url: URL, body: uporabnik, json: true}, (error, res, body) => {
+                // Prislo je do napake pri dostopu do storitve
                 if (error) {
-                    return done(error);
+                    const napaka = new PrijavaException(error,
+                        "Storitev uporabniki ni dosegljiva - ali je bila zagnana?", 424);
+                    return done(napaka, false);
+                // Uporabnik je bil kreiran
                 } else if (res.statusCode === 201) {
-                    return done(null, true);
+                    return done(undefined, true);
+                // napaka
                 } else {
-                    console.log(`KODA: ${res.statusCode}, body: ${body}`);
-                    return done(null, false);
+                    const napaka = new PrijavaException(body, body.sporocilo, res.statusCode);
+                    return done(napaka, false);
                 }
             });
         });
-
     }
 
     private generateJWTtoken(uporabnik) {
@@ -79,41 +92,3 @@ export class Avtentikacija {
     }
 
 }
-
-/*function generateJWTtoken(uporabnik) {
-
-    const vloge = uporabnik.vloge.map( (item) => {
-        return item.id;
-    });
-
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 7);
-    return jwt.sign({
-        id: uporabnik.id,
-        roles: vloge,
-    }, config.token_secret);
-}
-
-export function prijaviUporabnika(email: string, geslo: string , done: (err: Error, token?: string|boolean) => void) {
-    const URL = `http://localhost:8080/v1/uporabniki/email/${email}`;
-
-    request.get({url: URL}, (error, res, body) => {
-        console.log(res.statusCode);
-        if (error) {
-            return done(error);
-        } else if (res.statusCode === 200) {
-            const uporabnik = JSON.parse(body);
-            encrypt.comparePassword(geslo, uporabnik.geslo, (napaka, isMatch) => {
-                if (isMatch) {
-                    return done(undefined, generateJWTtoken(uporabnik));
-                } else {
-                    return done(undefined, false);
-                }
-            });
-        } else {
-            const napaka = new Error("Not Found");
-            console.log("napaka: ", napaka);
-            return done(napaka);
-        }
-    });
-}*/

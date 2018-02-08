@@ -16,7 +16,6 @@ class App {
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(cookieParser());
-        // this.express.use(passport.initialize());
         // lovilci napak
         this.express.use(this.error401);
         this.express.use(this.error404);

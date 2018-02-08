@@ -10,12 +10,10 @@ public class UporabnikRequest {
 	
 	public String email;
 	
-	public String geslo1;
-	
-	public String geslo2;
-	
-	public String hashedGeslo;
+	public String geslo;
 	
 	public int letnik;
+	
+	public String kljuc;
 	
 }

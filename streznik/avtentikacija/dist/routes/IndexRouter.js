@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const Uporabnik_1 = require("../entities/Uporabnik");
 const avtentikacija_1 = require("../services/avtentikacija");
-const enc = require("../services/encrypt");
 const resp = require("./odgovor");
 class IndexRouter {
     constructor() {
@@ -10,17 +10,14 @@ class IndexRouter {
         this.init();
     }
     init() {
-        this.router.get("/", this.getAll);
         this.router.post("/prijava", this.prijaviUporabnika);
-        this.router.get("/hash", this.zakriptirajGeslo);
-    }
-    zakriptirajGeslo(req, res, next) {
-        const geslo = req.query.geslo;
-        enc.encryptPassword(geslo, (napaka, hash) => {
-            res.json({ err: napaka, geslo: hash });
-        });
+        this.router.post("/register", this.registrirajUporabnika);
     }
     prijaviUporabnika(req, res, next) {
+        if (!req.body.geslo || !req.body.geslo) {
+            resp.returnJSONres(res, 400, { sporocilo: "Manjka email in/ali geslo!" });
+            return;
+        }
         const avtentikacijaService = new avtentikacija_1.Avtentikacija();
         avtentikacijaService.prijaviUporabnika(req.body.email, req.body.geslo, (napaka, token) => {
             if (napaka) {
@@ -36,9 +33,20 @@ class IndexRouter {
             }
         });
     }
-    getAll(req, res, next) {
-        res.json({
-            sporocilo: "pozdravljen svet!",
+    registrirajUporabnika(req, res, next) {
+        const b = req.body;
+        const avtentikacijaService = new avtentikacija_1.Avtentikacija();
+        const uporabnik = new Uporabnik_1.Uporabnik(b.uporabniskoIme, b.ime, b.priimek, b.email, b.geslo1, b.geslo2, parseInt(b.letnik, 10));
+        avtentikacijaService.registrirajUporabnika(uporabnik, (napaka, uspeh) => {
+            if (napaka) {
+                resp.returnJSONres(res, 500, { err: napaka });
+            }
+            else if (uspeh) {
+                resp.returnJSONres(res, 201, { sporocilo: "OK" });
+            }
+            else {
+                resp.returnJSONres(res, 400, { napaka: "slaba zahteva!" });
+            }
         });
     }
 }

@@ -5,8 +5,6 @@ import * as logger from "morgan";
 import * as passport from "passport";
 import * as path from "path";
 
-import * as passportConfig from "./config/passport";
-
 import IndexRouter from "./routes/IndexRouter";
 
 class App {
@@ -24,7 +22,6 @@ class App {
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({extended: false}));
         this.express.use(cookieParser());
-        // this.express.use(passport.initialize());
 
         // lovilci napak
         this.express.use(this.error401);

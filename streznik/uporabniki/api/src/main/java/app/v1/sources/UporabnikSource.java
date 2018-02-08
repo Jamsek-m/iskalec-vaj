@@ -1,40 +1,46 @@
 package app.v1.sources;
 
+import com.kumuluz.ee.configuration.utils.ConfigurationUtil;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import entities.uporabnik.Uporabnik;
+import exceptions.NiPravicException;
 import exceptions.SendEmailException;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-import repositories.UporabnikRepository;
+import requests.uporabnik.UporabnikEmailRequest;
 import requests.uporabnik.UporabnikRequest;
+import response.Odgovor;
 import response.uporabnik.UporabnikZGeslom;
 import services.UporabnikService;
 
-import javax.enterprise.context.RequestScoped;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.File;
 import java.util.List;
 
 @Path("uporabniki")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@RequestScoped
+@ApplicationScoped
 public class UporabnikSource {
 	
 	@Inject
 	private UporabnikService uporabnikService;
 	
-	@Inject
-	private UporabnikRepository uporabnikRepository;
-	
 	@Context
 	protected UriInfo uriInfo;
 	
+	private String kljucAvtentikacije;
+	
+	@PostConstruct
+	private void init() {
+		this.kljucAvtentikacije = ConfigurationUtil.getInstance().get("politika.avtentikacija-kljuc").orElse("");
+	}
+	
+	// Metoda za pridobivanje vseh uporabnikov - uporabljaj query za performance!
 	@GET
 	public Response getUporabniki() {
 		QueryParameters query = QueryParameters.query(uriInfo.getRequestUri().getQuery()).build();
@@ -42,13 +48,15 @@ public class UporabnikSource {
 		return Response.status(Response.Status.OK).entity(uporabniki).build();
 	}
 	
-	@GET
+	// Metoda za pridobivanje podatkov o enem uporabniku
 	@Path("{id}")
-	public Response getEnegaUporabnika(@PathParam("id") long id) {
+	@GET
+	public Response getEnegaUporabnika(@PathParam("id") long id){
 		Uporabnik uporabnik = uporabnikService.poisciUporabnika(id);
 		return Response.status(Response.Status.OK).entity(uporabnik).build();
 	}
 	
+	// Metoda za iskanje uporabnikov
 	@GET
 	@Path("isci")
 	public Response poisciZImenomInPriimkom(@QueryParam("q") String query) {
@@ -56,28 +64,37 @@ public class UporabnikSource {
 		return Response.status(Response.Status.OK).entity(uporabniki).build();
 	}
 	
+	// Metoda za registracijo: shrani uporabnika in poslje potrditveni email
 	@POST
-	public Response dodajUporabnika(UporabnikRequest uporabnikRequest) throws SendEmailException {
-		uporabnikService.dodajUporabnika(uporabnikRequest);
-		return Response.status(Response.Status.CREATED).entity(uporabnikRequest).build();
+	public Response dodajUporabnika(UporabnikRequest uporabnikRequest) throws SendEmailException, NiPravicException {
+		if(uporabnikRequest.kljuc.equals(this.kljucAvtentikacije)) {
+			uporabnikService.dodajUporabnika(uporabnikRequest, uriInfo.getBaseUri().toString());
+			return Response.status(Response.Status.CREATED).entity(uporabnikRequest).build();
+		} else {
+			throw new NiPravicException("Dostop dovoljen samo drugi storitvi!");
+		}
 	}
 	
 	@GET
-	@Path("email/{email}")
-	public Response pridobiZEmailom(@PathParam("email") String email) {
-		UporabnikZGeslom upb = uporabnikRepository.poisciUporabnikaZEmailom(email);
-		return Response.status(Response.Status.OK).entity(upb).build();
+	@Path("potrdi/{kljuc}")
+	public Response potrdiUporabnika(@PathParam("kljuc") String kljuc) {
+		uporabnikService.potrdiUporabnikovEmail(kljuc);
+		/*Odgovor odgovor = new Odgovor() {
+			String sporocilo = "Uspeh!";
+		};*/
+		return Response.status(Response.Status.OK).entity(new Odgovor("OK")).build();
 	}
 	
-	/*@POST
-	@Path("test")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response testiraj(@FormDataParam("slika")File file,
-							 @FormDataParam("slika")FormDataContentDisposition file_meta,
-							 @FormDataParam("naziv") String naziv,
-							 @FormDataParam("naziv") double cena,
-							 @FormDataParam("naziv") String opis){
-		
-		return Response.status(Response.Status.OK).entity(file.getAbsolutePath()).build();
-	}*/
+	// Metoda za avtentikacijo: vrne uporabnika z poljem geslo za podani email
+	@POST
+	@Path("email")
+	public Response pridobiZEmailom(UporabnikEmailRequest req) throws NiPravicException {
+		if(req.kljuc.equals(this.kljucAvtentikacije)) {
+			UporabnikZGeslom upb = uporabnikService.poisciZEmailom(req.email);
+			return Response.status(Response.Status.OK).entity(upb).build();
+		} else {
+			throw new NiPravicException("Dostop dovoljen samo drugi storitvi!");
+		}
+	}
+
 }

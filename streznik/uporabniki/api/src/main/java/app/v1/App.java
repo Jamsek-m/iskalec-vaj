@@ -16,11 +16,5 @@ import java.util.Set;
 @ApplicationPath("v1")
 @CrossOrigin(supportedMethods = "GET POST PUT DELETE", allowOrigin = "localhost:4200")
 public class App extends Application {
-	
-	@Override
-	public Set<Class<?>> getClasses() {
-		final Set<Class<?>> classes = new HashSet<>();
-		classes.add(UporabnikSource.class);
-		return classes;
-	}
+
 }

@@ -30,11 +30,12 @@ public class EmailServiceImpl implements EmailService {
 	}
 	
 	@Override
-	public void posljiRegistracijskiEmail(Uporabnik prejemnik, String zadeva, String potrditveniKljuc) throws SendEmailException {
+	public void posljiRegistracijskiEmail(Uporabnik prejemnik, String zadeva, String potrditveniKljuc, String hostname) throws SendEmailException {
 		HashMap<String, String> kontekst = new HashMap<>();
 		kontekst.put("zadeva", zadeva);
 		kontekst.put("uporabniskoIme", prejemnik.getUporabniskoIme());
 		kontekst.put("kljuc", potrditveniKljuc);
+		kontekst.put("hostname", hostname);
 		this.posljiEmail(TIP_REGISTRACIJA, zadeva, prejemnik.getEmail(), kontekst);
 	}
 	

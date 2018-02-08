@@ -17,8 +17,7 @@
     <h2 th:text="'Zadeva: ' + ${zadeva}"></h2>
     <p>Registriral si se z uporabniškim imenom: <strong th:text="${uporabniskoIme}"></strong></p>
 
-    <p>Za potrditev elektronskega naslova sledi <a th:href="@{'http://localhost/potrdi/' + ${kljuc}}">tej povezavi</a></p>
-
+    <p>Za potrditev elektronskega naslova sledi <a th:href="@{${hostname} + 'uporabniki/potrdi/' + ${kljuc}}">tej povezavi</a></p>
 
 </div>
 </body>

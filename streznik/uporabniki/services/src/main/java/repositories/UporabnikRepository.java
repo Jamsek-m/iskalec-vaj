@@ -23,20 +23,20 @@ public class UporabnikRepository {
 	}
 	
 	public Uporabnik pridobiUporabnika(long id) {
-		Query query = entityManager.createQuery("SELECT u FROM Uporabnik u WHERE u.id = :id");
-		query.setParameter("id", id);
-		Uporabnik uporabnik = (Uporabnik) query.getSingleResult();
-		if(uporabnik == null) {
-			return null;
-		}
+		Uporabnik uporabnik = entityManager.find(Uporabnik.class, id);
 		return uporabnik;
 	}
 	
 	public UporabnikZGeslom poisciUporabnikaZEmailom(String email) {
 		Query query = entityManager.createQuery("SELECT u FROM Uporabnik u WHERE u.email = :email");
 		query.setParameter("email", email);
-		UporabnikZGeslom uporabnik = new UporabnikZGeslom ((Uporabnik) query.getSingleResult());
-		return uporabnik;
+		List<Uporabnik> uporabniki = query.getResultList();
+		if(!uporabniki.isEmpty()) {
+			UporabnikZGeslom uporabnik = new UporabnikZGeslom(uporabniki.get(0));
+			return uporabnik;
+		} else {
+			return null;
+		}
 	}
 	
 	public long prestejUporabnikeZEmailom(String email) {
