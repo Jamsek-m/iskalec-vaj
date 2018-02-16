@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 @ApplicationPath("v1")
-@CrossOrigin(supportedMethods = "GET POST PUT DELETE", allowOrigin = "localhost:4200")
+@CrossOrigin(supportedMethods = "GET POST PUT DELETE", allowOrigin = "http://localhost:4200")
 public class App extends Application {
 
 }

@@ -5,6 +5,8 @@ import com.kumuluz.ee.rest.beans.QueryParameters;
 import entities.uporabnik.Uporabnik;
 import exceptions.NiPravicException;
 import exceptions.SendEmailException;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import requests.uporabnik.UporabnikEmailRequest;
 import requests.uporabnik.UporabnikRequest;
 import response.Odgovor;
@@ -19,6 +21,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.InputStream;
 import java.util.List;
 
 @Path("uporabniki")
@@ -95,6 +98,19 @@ public class UporabnikSource {
 		} else {
 			throw new NiPravicException("Dostop dovoljen samo drugi storitvi!");
 		}
+	}
+	
+	@POST
+	@Path("test")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response testiraj(
+			@FormDataParam("slika") InputStream slika,
+			@FormDataParam("slika") FormDataContentDisposition metadata,
+			@FormDataParam("ime") String imeSlike) {
+		
+		System.out.println(imeSlike);
+		System.out.println(metadata.getName());
+		return Response.status(Response.Status.OK).entity("OK").build();
 	}
 
 }
